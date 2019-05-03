@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -18,6 +18,7 @@ namespace TextDetection
             InitializeComponent();
         }
 
+        public bool isContainUnicode = false;
         public string filepath;
 
         private void btnBr_Click(object sender, EventArgs e)
@@ -31,6 +32,17 @@ namespace TextDetection
             {
                 textPath.Text = dlg.FileName;
                 filepath = dlg.FileName;
+                string sOutput = System.Text.Encoding.ASCII.GetString(System.Text.Encoding.ASCII.GetBytes(filepath));
+                bool isQuestion = sOutput.Contains("?");
+                if (isQuestion)
+                {
+                    txtConsole.AppendText("Path or file name cannot contain unicode character!!!\n");
+                    isContainUnicode = true;
+                }
+                else
+                {
+                    isContainUnicode = false;
+                }
             }
         }
 
@@ -41,15 +53,16 @@ namespace TextDetection
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if (textPath.Text != "")
+            if (textPath.Text != "" && isContainUnicode == false)
             {
                 string Mode = "";
                 if (rDec.Checked == true)
                 {
-                    
                     Callcmd calldec = new Callcmd(filepath);
+
                     string filename_return;
                     filename_return = calldec.calltextdetection();
+
                     Mode = "Mode: Text Detection.\n";
                     DateTime now = DateTime.Now;
                     calldec.SaveInformation(0);
@@ -66,8 +79,10 @@ namespace TextDetection
                 else if (rRec.Checked == true)
                 {
                     Callcmd callreg = new Callcmd(filepath);
+
                     string filename_return;
                     filename_return = callreg.calltextrecognition();
+
                     Mode = "Mode: Text Recognition.\n";
                     DateTime now = DateTime.Now;
                     callreg.SaveInformation(1);
@@ -84,9 +99,12 @@ namespace TextDetection
                 {
 
                     Callcmd callreg = new Callcmd(filepath);
+
                     string filename_return;
                     filename_return = callreg.calltextvideodetection();
-                    Mode = "Mode: Text Recognition.\n";
+
+
+                    Mode = "Mode: Text video detection.\n";
                     DateTime now = DateTime.Now;
                     callreg.SaveInformation(2);
 
@@ -94,11 +112,9 @@ namespace TextDetection
                     txtConsole.AppendText(Mode);
                     txtConsole.AppendText("Time: " + now.ToString() + "\n");
                     txtConsole.AppendText("Video name: " + filename_return + "\n");
-
                 }
-                
             }
-            else
+            else if (textPath.Text == "")
             {
                 if (rVid.Checked == true)
                 {
@@ -114,6 +130,10 @@ namespace TextDetection
                     txtConsole.Clear();
                     txtConsole.AppendText("PLEASE INPUT IMAGE!!!\n");
                 }
+            }
+            else
+            {
+                txtConsole.AppendText("Wrong format input path\n");
             }
         }
 
